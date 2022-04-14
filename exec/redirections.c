@@ -42,7 +42,7 @@ int	find_space5(char *tab)
 	return 0;
 }
 
-int	find_path_red(char *str, t_pipe *index, t_mini *id)
+int	find_path_red(t_pipe *index, t_parse *iterator)
 {
 	int i;
 	int a;
@@ -52,29 +52,22 @@ int	find_path_red(char *str, t_pipe *index, t_mini *id)
 	i = 0;
 	temp = getenv("PATH");
 	index->tab = ft_split(temp, ':');
-	int res = find_space5(str);
-	if (res == 1)
-	{
-		tep = ft_split(str, ' ');
-	}
-	else
-	{
-		tep = (char **)malloc(sizeof(char *));
-		tep[0] = str;
-	}
 	while (index->tab[i])
 	{
 		a = ft_strlen(index->tab[i]);
 		index->tab[i][a] = '/'; // bach tkoun lpath kamla n '/'
 		index->tab[i][a + 1] = '\0'; // bach nsali string
-		index->str = ft_strjoin(index->tab[i], tep[0]);
+		index->str = ft_strjoin(index->tab[i], iterator->cmd);
 		if (access(index->str, F_OK) == 0)
 		{
-			execve(index->str, &tep[0], index->string);
+			execve(index->str, &iterator->args[0], index->string);
 		}
 		i++;
 	}
-	return 1;
+	write (2, "command not found:", 18);
+	write (2, iterator->cmd, ft_strlen(iterator->cmd));
+	write(2, "\n", 1);
+	exit(0);	
 }
 
 void	open_files(char *str)
@@ -90,48 +83,91 @@ void	open_files(char *str)
 	}
 }
 
-void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, char *str)
+void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 {
     int a;
 	int ID_FOR;
     char **tab;
 	int fd = 0;
 
-	if (str[0] == '>' && str[1] != '>')
+
+	if (iterator->redirection)
 	{
-		tab = ft_split(str, '>');
-		fd = open(tab[0], O_CREAT | O_RDWR , 0777);
-	}
-	else if (str[0] == '>' && str[1] == '>')
-	{
-		tab = ft_split(str, '>');
-		fd = open(tab[0], O_CREAT | O_RDWR , 0777);
-	}
-	else if (find_red(str) == 2)
-	{
-		tab = ft_split(str, '>');
-		fd = open(tab[1], O_CREAT | O_RDWR | O_APPEND , 0777);
-		ID_FOR = fork();
-		if (ID_FOR == 0)
+		if (iterator->redirection->type == T_RDRIN)
 		{
-			dup2(fd, STDOUT_FILENO);
-			find_path_red(tab[0], pipx, index);
+			if (access (iterator->redirection->file, F_OK) == 0)
+			{
+				fd = open(iterator->redirection->file, O_CREAT, O_RDONLY, 0777);
+				if (fork() == 0)
+				{
+					dup2(fd, STDIN_FILENO);
+					find_path_red(pipx, iterator);
+				}
+				wait(NULL);
+			}
+			else
+			{
+				write (2, "no such file or directory:", 26);
+				write (2, iterator->redirection->file, ft_strlen(iterator->redirection->file));
+				write(2, "\n", 1);
+			}
 		}
-		wait(NULL);
-		//close(fd);
-	}
-	else
-	{
-    	tab = ft_split(str, '>');
-        fd = open(tab[1], O_CREAT | O_WRONLY, 0777);
-		ID_FOR = fork();
-		if (ID_FOR == 0)
+		else if (iterator->redirection->type == T_RDROUT)
 		{
-			dup2(0, STDIN_FILENO);
-        	dup2(fd, STDOUT_FILENO);
-			find_path_red(tab[0], pipx, index);
+			fd = open(iterator->redirection->file, O_CREAT | O_RDWR , 0777);
+			if (fork() == 0)
+			{
+				dup2(fd, STDOUT_FILENO);
+				find_path_red(pipx, iterator);
+			}
+			wait(NULL);
 		}
-		wait(NULL);
-		close(fd);
+		else if (iterator->redirection->type == T_APPEND)
+		{
+			fd = open(iterator->redirection->type , O_CREAT | O_APPEND , 0777);
+			if (fork() == 0)
+			{
+				dup2(fd, STDOUT_FILENO);
+				find_path_red(pipx, iterator);
+			}
+			wait(NULL);
+		}
 	}
+	// if (str[0] == '>' && str[1] != '>')
+	// {
+	// 	tab = ft_split(str, '>');
+	// 	fd = open(tab[0], O_CREAT | O_RDWR , 0777);
+	// }
+	// else if (str[0] == '>' && str[1] == '>')
+	// {
+	// 	tab = ft_split(str, '>');
+	// 	fd = open(tab[0], O_CREAT | O_RDWR , 0777);
+	// }
+	// else if (find_red(str) == 2)
+	// {
+	// 	tab = ft_split(str, '>');
+	// 	fd = open(tab[1], O_CREAT | O_RDWR | O_APPEND , 0777);
+	// 	ID_FOR = fork();
+	// 	if (ID_FOR == 0)
+	// 	{
+	// 		dup2(fd, STDOUT_FILENO);
+	// 		find_path_red(tab[0], pipx, index);
+	// 	}
+	// 	wait(NULL);
+	// 	//close(fd);
+	// }
+	// else
+	// {
+    // 	tab = ft_split(str, '>');
+    //     fd = open(tab[1], O_CREAT | O_WRONLY, 0777);
+	// 	ID_FOR = fork();
+	// 	if (ID_FOR == 0)
+	// 	{
+	// 		dup2(0, STDIN_FILENO);
+    //     	dup2(fd, STDOUT_FILENO);
+	// 		find_path_red(tab[0], pipx, index);
+	// 	}
+	// 	wait(NULL);
+	// 	close(fd);
+	// }
 }

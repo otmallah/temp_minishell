@@ -43,87 +43,47 @@ void	find_path(t_parse *iterator, t_pipe *index, char *str)
 	exit(0);
 }
 
-int	find_len5(char **tab)
+void	find_heredoc2(t_pipe *pipx, t_mini *index, t_idx *id, t_parse *iterator)
 {
-	int i;
+	t_parse *temp;
 
-	i = 0;
-	while (tab[i])
+	temp = iterator;
+	while (iterator)
 	{
-		//printf("tab = [%s] \n", tab[i]);
-		i++;
-	}
-	return i;
-}
-
-// void	check_cmd_if_built_func(t_mini *index, t_idx *id, char *str)
-// {
-// 	int a;
-// 	char **tab;
-
-// 	a = find_space2(str);
-// 	if (a == 1)
-// 	{
-// 		tab = ft_split(str, ' ');
-// 	}
-// 	else
-// 	{
-// 		tab = (char **)malloc(sizeof(char *));
-// 		tab[0] = str;
-// 	}
-// 	if (ft_strcmp(tab[0], "export") == 0)
-// 	{
-// 		if (a == 1)
-// 			ft_export(index, id, tab[1]);
-// 		else
-// 			ft_export(index, id, NULL);
-// 	}
-// }
-
-void	find_heredoc2(t_pipe *pipx, t_mini *index, t_idx *id)
-{
-	int i;
-	int j;
-
-	i = 0;
-	j = 0;
-	while (pipx->tab[i])
-	{
-		while (pipx->tab[i][j])
+		if (iterator->redirection)
 		{
-			if (pipx->tab[i][j] == '<' && pipx->tab[i][j + 1] == '<')
+			while(iterator->redirection)
 			{
-				ft_heredoce(index, id, pipx, pipx->tab[i]);
+				//printf("cmd = [%s]\n", iterator->cmd);
+				if (iterator->redirection->type == T_HEREDOC)
+				{
+					ft_heredoce(index, id, pipx, iterator);	
+				}
+				//printf("file [%s] \n", iterator->redirection->file);
+				iterator->redirection = iterator->redirection->next;
 			}
-			j++;
+			//ft_heredoce(index, id, pipx, iterator);
 		}
-		j = 0;
-		i++;
+		iterator = iterator->next;
 	}
 }
 
-void	find_redirection(t_mini *index, t_idx *id, t_pipe *pipx)
+void	find_redirection(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iteratore)
 {
-	int i;
-	int j;
-
-	i = 0;
-	j = 0;
-	while (pipx->tab[i])
+	while (iteratore)
 	{
-		while (pipx->tab[i][j])
+		if (iteratore->redirection)
 		{
-			if (pipx->tab[i][j] == '<')
-				break ;
-			else if (pipx->tab[i][j] == '>')
+			while(iteratore->redirection)
 			{
-				ft_redirections(index, id, pipx, pipx->tab[i]);
-				break ;
+				if (iteratore->redirection->type == T_RDROUT)
+					ft_redirections(index, id, pipx, iteratore);
+				if (iteratore->redirection->type == T_RDRIN)
+					ft_redirections(index, id, pipx, iteratore);
+				iteratore->redirection = iteratore->redirection->next;
 			}
-			j++;
 		}
-		j = 0;
-		i++;
+		iteratore = iteratore->next;
 	}
 }
 
@@ -140,24 +100,36 @@ int 	nbr_of_cmds2(t_parse *head)
 	return (i);
 }
 
-int ft_pipe(t_mini *index, t_pipe *pipx, t_parse *iterator)
+int ft_pipe(t_mini *index, t_pipe *pipx, t_idx *idx, t_parse *iterator)
 {
 	int fd[2];
 	char *str;
+	t_parse *temp;
 	int a;
 	int i;
 	int sp;
 	int id;
 	int pid[100];
 
-	//find_heredoc2(pipx, index, idx);
-	//find_redirection(index, idx, pipx);
+	find_heredoc2(pipx, index, idx, iterator);
+	find_redirection(index, idx, pipx, iterator);
 	a = nbr_of_cmds2(mini.command);
+	iterator = mini.command;
 	i = 0;
 	int ff = 0;
 	while (i < a)
 	{
 		//puts("*-*-**********************************************");
+		// if (iterator->redirection)
+		// {
+		// 	puts("*-*--*-*-*-*-*-");
+		// 	while (iterator->redirection)
+		// 	{
+		// 		if(iterator->redirection->type == 3)
+		// 			iterator = iterator->next;
+		// 		iterator->redirection = iterator->redirection->next;
+		// 	}
+		// }
 		if (pipe(fd) == -1)
 			return 1;
 		id = fork();

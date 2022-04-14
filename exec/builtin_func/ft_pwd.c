@@ -12,9 +12,24 @@
 
 #include "../minishell.h"
 
-void	ft_pwd(void)
+void	ft_pwd(t_parse *iterator)
 {
 	char	buff[256];
+	int		fd;
 
-	printf("%s\n" , getcwd(buff, sizeof(buff)));
+	if (iterator->redirection)
+	{
+		fd = open(iterator->redirection->file, O_CREAT | O_RDWR , 0777);
+		if (iterator->redirection->type == T_RDROUT)
+		if (fork() == 0)
+		{
+			dup2(fd, STDOUT_FILENO);
+			printf("%s\n" , getcwd(buff, sizeof(buff)));
+			exit(0);
+		}
+		wait(NULL);
+	}
+	else
+		printf("%s\n" , getcwd(buff, sizeof(buff)));
+	close(fd);
 }

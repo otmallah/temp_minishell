@@ -62,7 +62,7 @@ int	ft_strlen(char *str);
 char	*ft_strjoin(char *s1, char *s2);
 char	**ft_split(char *s, char l);
 char	*ft_substr(char *s, unsigned int start, size_t len);
-void	ft_pwd(void);
+void	ft_pwd(t_parse *iterator);
 void    ft_cd(char *path);
 char	*ft_strchr(const char *str, int c);
 void    ft_exit(t_mini *index);
@@ -101,15 +101,15 @@ void    add_to_temp_expo(t_mini *index, t_idx *id, char *str);
 
 //pipe
 
-int ft_pipe(t_mini *index, t_pipe *pipx, t_parse *iterator);
+int ft_pipe(t_mini *index, t_pipe *pipx, t_idx *idx, t_parse *iterator);
 void	func_all(t_mini *index, t_parse *iterator);
 char	*ft_getenv(char *str, t_mini *index);
 
 //redirections
 
-void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, char *str);
-int	find_path_red(char *str, t_pipe *index, t_mini *id);
-void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, char *str);
+void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator);
+int	find_path_red(char *str, t_pipe *index, t_parse *iterator);
+void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator);
 int		find_pipe(char *str);
 
 //signals

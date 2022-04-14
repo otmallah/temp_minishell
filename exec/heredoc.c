@@ -54,26 +54,25 @@ int	tablen(char **tab)
 	return i;
 }
 
-int	open_mult_file(char *str)
+int	open_mult_file(t_parse *iterator)
 {
-	int i;
-	char **tab;
-	int	fd;
+	// int i;
+	// char **tab;
+	// int	fd;
 
-	i = 0;
-	tab = ft_split(str, '>');
-	while (tab[i])
+	// i = 0;
+	// tab = ft_split(str, '>');
+	int fd = 0;
+
+	while (iterator->redirection)
 	{
-		if (tab[i + 1] != NULL)
-			open(tab[i], O_CREAT | O_RDWR , 0777);
-		else if (tab[i + 1] == NULL)
+		if (iterator->redirection->type == 2)
 		{
-			fd = open(tab[i], O_CREAT | O_RDWR , 0777);
-			return fd;
+			fd = open(iterator->redirection->file, O_CREAT | O_RDWR , 0777);
 		}
-		i++;
+		iterator->redirection = iterator->redirection->next;
 	}
-	return 0;
+	return fd;
 }
 
 // void	exec_cmd_first(t_mini *index, t_pipe *pipx, char *str)
@@ -94,7 +93,7 @@ int	open_mult_file(char *str)
 // 	}
 // }
 
-void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, char *str)
+void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 {
 	int sec_fd;
 	char	**tab;
@@ -103,27 +102,16 @@ void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, char *str)
 	int size = 0;
 	int a;
 
-		if (findred(str) == 2)
-			size = open_mult_file(ft_strchr(str, '>'));
-		tab = ft_split(str, ' ');
+		//size = open_mult_file(iterator);
+		size = open(iterator->redirection->file, O_CREAT | O_RDWR , 0777);
 		sec_fd = open("he", O_CREAT | O_WRONLY , 0777);
-		// if (findred(str) == 1)
-		// 	fd = open(tab[size - 1], O_CREAT | O_RDWR | O_APPEND , 0777);
-		// else
-		// 	fd = open(tab[size - 1], O_CREAT | O_RDWR , 0777);
 		while (1)
 		{
 			str_read = readline(">");
-			if (ft_strcmp(tab[0], "<<") != 0)
-			{
-				if (strcmp(str_read, tab[2]) == 0)
-					break ;
-			}
-			else
-			{
-				if (strcmp(str_read, tab[1]) == 0)
-					break ;
-			}
+			if (ft_strcmp(str_read, iterator->redirection->file) == 0)
+				break;
+			if (str_read == NULL)
+				break;
 			write(sec_fd, str_read, strlen(str_read));
 			write(sec_fd, "\n", 1);
 		}
@@ -134,10 +122,7 @@ void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, char *str)
 			dup2(sec_fd, STDIN_FILENO);
 			if (size != 0)
 				dup2(size, STDOUT_FILENO);
-			if (ft_strcmp(tab[0], "<<") != 0)
-				find_path_red(tab[0], pipx, index);
-			else
-				find_path_red(tab[2], pipx, index);
+			find_path_red(pipx, iterator);
 		}
 		close(fd);
 		close(sec_fd);

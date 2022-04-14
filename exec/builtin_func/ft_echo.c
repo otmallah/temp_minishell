@@ -16,11 +16,30 @@ void	ft_echo(t_parse *iteratore)
 {
 	int i;
 	i = 2;
+	int fd;
 	//char *find;
 
-	while(iteratore->args[i])
+	if (iteratore->redirection)
 	{
-		printf("%s ", iteratore->args[i]);
-		i++;
+		fd = open(iteratore->redirection->file, O_CREAT | O_RDWR , 0777);
+		if (fork() == 0)
+		{
+			dup2(fd, STDOUT_FILENO);
+			while(iteratore->args[i])
+			{
+				printf("%s ", iteratore->args[i]);
+				i++;
+			}
+			exit(0);
+		}
+		wait(NULL);
+	}
+	else
+	{
+		while(iteratore->args[i])
+		{
+			printf("%s ", iteratore->args[i]);
+			i++;
+		}
 	}
 }

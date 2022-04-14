@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+ /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   parser.h                                            :+:      :+:    :+:   */
@@ -71,15 +71,16 @@ char *lexer_get_current_char_as_string(t_lexer *lexer);
 
 t_token	*lexer_advance_with_token(t_lexer *lexer, t_token *token);
 
-
 t_token	*lexer_collect_word(t_lexer *lexer);
 
-
 char *join_string(t_lexer *lexer, char c);
+
 char	*join_word(t_lexer *lexer);
+
 char	*after_quotes(t_lexer *lexer, char *val);
 
 char *expandInWord(t_lexer *lexer);
+
 char *expandInQuotes(t_lexer *lexer);
 
 void lexer_retreat(t_lexer *lexer);
@@ -94,10 +95,15 @@ void	add_redirecion(t_redirection *head, char *val, t_type type);
 t_redirection *init_redirection(char *val, t_type type);
 
 t_parse	*init_commands(void);
-t_parse *add_command(void);
-void factory(t_token **token, t_parse *command, int i);
-void create_command(t_token **token);
-t_token **realloc_token(t_token **curr, t_token *token);
-void parse(void);
-#endif
 
+t_parse *add_command(void);
+
+void factory(t_token **token, t_parse *command, int i);
+
+void create_command(t_token **token);
+
+t_token **realloc_token(t_token **curr, t_token *token);
+
+void parse(void);
+
+#endif
