@@ -1,4 +1,4 @@
-#include "../Parsing/minishell_exec.h"
+#include "../Parse/minishell_exec.h"
 
 int	find_space2(char *tab)
 {

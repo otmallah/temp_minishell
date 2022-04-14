@@ -4,7 +4,7 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
-#include "../Parsing/parser.h"
+#include "../Parse/parser.h"
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <readline/readline.h>

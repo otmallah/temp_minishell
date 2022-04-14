@@ -35,7 +35,7 @@ typedef struct s_minishell
 
 t_mini mini;
 
-typedef struct s_pipe 
+typedef struct s_pipe
 {
 	char **tab;
 	char *str;

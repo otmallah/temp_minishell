@@ -6,7 +6,7 @@
 /*   By: otmallah <otmallah@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/12 10:53:58 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/04/14 01:24:19 by otmallah         ###   ########.fr       */
+/*   Updated: 2022/04/14 01:50:50 by otmallah         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,12 +115,12 @@ void	ft_check_line(t_mini *index, t_pipe *pipx, t_parse *iterator, t_idx *id, ch
 	{
 		if (ft_strcmp(iterator->cmd, "pwd") == 0)
 			ft_pwd();
-		else if (ft_strcmp(iterator->cmd, "env") == 0 && ft_strcmp(iterator->args[1], "-n") == 0)
-			ft_env(index, id);
-		else if (ft_strcmp(iterator->cmd, "echo") == 0)
+		else if (ft_strcmp(iterator->cmd, "echo") == 0 && ft_strcmp(iterator->args[1], "-n") == 0)
 			ft_echo(iterator);
 		else if (ft_strcmp(iterator->cmd, "cd") == 0)
 			ft_cd(iterator->args[1]);
+		else if (ft_strcmp(iterator->cmd, "env") == 0)
+			ft_env(index, id);
 		else
 			check_pipe(pipx, index, iterator, iterator->cmd);
 	}
@@ -172,13 +172,14 @@ int main(int ac, char **av, char **env)
 		// 	while (iterator->args[i])
 		// 	{
 		// 		printf(" \t the args is %s\n", iterator->args[i]);
+		// 		printf("%d \n" ,iterator->redirection->type);
 		// 		i++;
 		// 	}
 		// 	iterator = iterator->next;
 		// }
 		//ft_export(&index, &id, NULL);
 		if (mini.line[0])
-			ft_check_line(&index, &pipe, iterator, &id, env);
+		 	ft_check_line(&index, &pipe, iterator, &id, env);
 	}
 	return (0);
 }

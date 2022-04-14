@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_commad.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otmallah <otmallah@student.42.fr>          +#+  +:+       +#+        */
+/*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 02:03:13 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/04/12 16:31:30 by otmallah         ###   ########.fr       */
+/*   Updated: 2022/04/14 00:37:08 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	array_len(char **array)
 	int i;
 
 	i = 0;
-	if(array)
+	if (array)
 	{
 		while (array[i])
 			i++;
@@ -68,7 +68,7 @@ t_parse *add_command(void)
 	new->cmd = NULL;
 	new->args = NULL;
 	new->argsc = 0;
-	new->redirection = NULL;
+	new->redirection = (t_redirection *)NULL;
 	new->next = NULL;
 	return (new);
 }
@@ -76,6 +76,7 @@ t_parse *add_command(void)
 
 void factory(t_token **token, t_parse *command, int i)
 {
+	command->redirection = NULL;
 	if (token[i]->type == T_WORD)
 	{
 		if (command->args == NULL)
@@ -85,6 +86,7 @@ void factory(t_token **token, t_parse *command, int i)
 	else if (token[i]->type == T_RDRIN || token[i]->type == T_RDROUT 
 			|| token[i]->type == T_APPEND || token[i]->type == T_HEREDOC)
 	{
+			// command->redirection = init_redirection(token[i + 1]->value, token[i]->type);
 		if (command->redirection == NULL)
 			command->redirection = init_redirection(token[i + 1]->value, token[i]->type);
 		else
