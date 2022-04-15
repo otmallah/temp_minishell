@@ -108,7 +108,7 @@ char	*ft_getenv(char *str, t_mini *index);
 //redirections
 
 void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator);
-int	find_path_red(char *str, t_pipe *index, t_parse *iterator);
+int	find_path_red(t_pipe *index, t_parse *iterator);
 void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator);
 int		find_pipe(char *str);
 

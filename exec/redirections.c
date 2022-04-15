@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../Parse/minishell_exec.h"
 
 int find_red(char *str)
 {
@@ -90,7 +90,6 @@ void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
     char **tab;
 	int fd = 0;
 
-
 	if (iterator->redirection)
 	{
 		if (iterator->redirection->type == T_RDRIN)
@@ -103,6 +102,7 @@ void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 					dup2(fd, STDIN_FILENO);
 					find_path_red(pipx, iterator);
 				}
+				close(fd);
 				wait(NULL);
 			}
 			else
@@ -114,22 +114,24 @@ void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 		}
 		else if (iterator->redirection->type == T_RDROUT)
 		{
-			fd = open(iterator->redirection->file, O_CREAT | O_RDWR , 0777);
+			fd = open(iterator->redirection->file, O_CREAT | O_RDWR);
 			if (fork() == 0)
 			{
 				dup2(fd, STDOUT_FILENO);
 				find_path_red(pipx, iterator);
 			}
+			close(fd);
 			wait(NULL);
 		}
 		else if (iterator->redirection->type == T_APPEND)
 		{
-			fd = open(iterator->redirection->type , O_CREAT | O_APPEND , 0777);
+			fd = open(iterator->redirection->file , O_CREAT | O_RDWR | O_APPEND , 0777);
 			if (fork() == 0)
 			{
 				dup2(fd, STDOUT_FILENO);
 				find_path_red(pipx, iterator);
 			}
+			close(fd);
 			wait(NULL);
 		}
 	}

@@ -12,18 +12,36 @@
 
 #include "minishell.h"
 
-int    find_space(char *str)
+int    find_slash(char *str)
 {
 	int i;
 
 	i = 0;
 	while (str[i])
 	{
-		if (str[i] == ' ')
+		if (str[i] == '/')
 			return 1;
 		i++;
 	}
 	return 2;
+}
+
+void	ft_check_cmd(t_parse *iterator, t_mini *index)
+{
+	if (iterator->cmd[0] == '.')
+	{
+		if (access(iterator->cmd, F_OK | X_OK) == 0)
+		{
+			execve(iterator->cmd, &iterator->args[0], index->string);
+		}
+	}
+	else if (find_slash(iterator->cmd) == 1)
+	{
+		if (access(iterator->cmd, F_OK) == 0)
+		{
+			execve(iterator->cmd, &iterator->args[0], index->string);
+		}
+	}
 }
 
 void	func_all(t_mini *index, t_parse *iterator)
@@ -34,6 +52,7 @@ void	func_all(t_mini *index, t_parse *iterator)
 	char *str2;
 
 	i = 0;
+	ft_check_cmd(iterator, index);
 	index->tab = ft_split(index->str, ':');
 	while (index->tab[i])
 	{
@@ -114,7 +133,10 @@ void	ft_check_line(t_mini *index, t_pipe *pipx, t_parse *iterator, t_idx *id, ch
 				while (iterator->redirection)
 				{
 					if (iterator->redirection->type == T_HEREDOC)
-						ft_heredoce(index, id, pipx, iterator);	
+					{
+						puts("*-*-*-*-*-*-*-*-*");
+						ft_heredoce(index, id, pipx, iterator);
+					}
 					else
 						ft_redirections(index, id, pipx, iterator);
 					iterator->redirection = iterator->redirection->next;
@@ -173,7 +195,15 @@ int main(int ac, char **av, char **env)
 		// 	while (iterator->args[i])
 		// 	{
 		// 		printf(" \t the args is %s\n", iterator->args[i]);
-		// 		printf("%d \n" ,iterator->redirection->type);
+		// 		if (iterator->redirection)
+		// 		{
+		// 			while (iterator->redirection)
+		// 			{
+		// 				puts("hana");
+		// 				printf("%s \n" ,iterator->redirection->file);
+		// 				iterator->redirection = iterator->redirection->next;
+		// 			}
+		// 		}
 		// 		i++;
 		// 	}
 		// 	iterator = iterator->next;

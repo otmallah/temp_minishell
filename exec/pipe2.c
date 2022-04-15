@@ -80,6 +80,8 @@ void	find_redirection(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iteratore
 					ft_redirections(index, id, pipx, iteratore);
 				if (iteratore->redirection->type == T_RDRIN)
 					ft_redirections(index, id, pipx, iteratore);
+				if (iteratore->redirection->type == T_APPEND)
+					ft_redirections(index, id, pipx, iteratore);
 				iteratore->redirection = iteratore->redirection->next;
 			}
 		}
@@ -111,25 +113,26 @@ int ft_pipe(t_mini *index, t_pipe *pipx, t_idx *idx, t_parse *iterator)
 	int id;
 	int pid[100];
 
-	find_heredoc2(pipx, index, idx, iterator);
+	//find_heredoc2(pipx, index, idx, iterator);
 	find_redirection(index, idx, pipx, iterator);
 	a = nbr_of_cmds2(mini.command);
-	iterator = mini.command;
+	//iterator = mini.command;
 	i = 0;
 	int ff = 0;
 	while (i < a)
 	{
 		//puts("*-*-**********************************************");
-		// if (iterator->redirection)
-		// {
-		// 	puts("*-*--*-*-*-*-*-");
-		// 	while (iterator->redirection)
-		// 	{
-		// 		if(iterator->redirection->type == 3)
-		// 			iterator = iterator->next;
-		// 		iterator->redirection = iterator->redirection->next;
-		// 	}
-		// }
+		if (iterator->redirection)
+		{
+			while (iterator->redirection)
+			{
+				if(iterator->redirection->type == T_RDROUT)
+					iterator = iterator->next;
+				else
+					break ;
+				iterator->redirection = iterator->redirection->next;
+			}
+		}
 		if (pipe(fd) == -1)
 			return 1;
 		id = fork();
