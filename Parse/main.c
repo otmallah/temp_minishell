@@ -34,6 +34,10 @@ void	ft_check_cmd(t_parse *iterator, t_mini *index)
 		{
 			execve(iterator->cmd, &iterator->args[0], index->string);
 		}
+		write (2, "minishell :no such file or directory ", 37);
+		write (2, iterator->cmd, ft_strlen(iterator->cmd));
+		write(2, "\n", 1);
+		exit(0);
 	}
 	else if (find_slash(iterator->cmd) == 1)
 	{
@@ -62,6 +66,7 @@ void	func_all(t_mini *index, t_parse *iterator)
 		index->str = ft_strjoin(index->tab[i], iterator->cmd);
 		if (access(index->str, F_OK) == 0)
 		{
+			status_last_exec = 0;
 			execve(index->str, &iterator->args[0], index->string);
 		}
 		i++;
@@ -69,25 +74,9 @@ void	func_all(t_mini *index, t_parse *iterator)
 	write (2, "command not found:", 18);
 	write (2, iterator->cmd, ft_strlen(iterator->cmd));
 	write(2, "\n", 1);
+	status_last_exec = 1;
 	exit(0);
 }
-
-// int poor(char *str)
-// {
-// 	int i;
-
-// 	i = 0;
-// 	while (str[i])
-// 	{
-// 		if (str[i] == '<' && str[i + 1] == '<')
-// 			return 1;
-// 		else if (str[i] == '>')
-// 			return 2;
-// 		else if (str[i] == '<' && str[i + 1] != '<')
-// 			return 3;
-// 		i++;
-// 	}
-// }
 
 void	check_pipe(t_pipe *pipe, t_mini *index, t_parse *iterator, char *str)
 {
@@ -118,7 +107,8 @@ void	ft_check_line(t_mini *index, t_pipe *pipx, t_parse *iterator, t_idx *id, ch
 	{
 		if (ft_strcmp(iterator->cmd, "pwd") == 0)
 			ft_pwd(iterator);
-		else if (ft_strcmp(iterator->cmd, "echo") == 0 && ft_strcmp(iterator->args[1], "-n") == 0)
+		else if (ft_strcmp(iterator->cmd, "echo") == 0 
+			&& ft_strcmp(iterator->args[1], "-n") == 0)
 			ft_echo(iterator);
 		else if (ft_strcmp(iterator->cmd, "cd") == 0)
 			ft_cd(iterator->args[1]);
@@ -134,7 +124,6 @@ void	ft_check_line(t_mini *index, t_pipe *pipx, t_parse *iterator, t_idx *id, ch
 				{
 					if (iterator->redirection->type == T_HEREDOC)
 					{
-						puts("*-*-*-*-*-*-*-*-*");
 						ft_heredoce(index, id, pipx, iterator);
 					}
 					else
@@ -190,32 +179,34 @@ int main(int ac, char **av, char **env)
 		// while (iterator)
 		// {
 		// 	printf("the command is %s\n", iterator->cmd);
-		// 	// printf("type %d \n", iterator->redirection->type);
+		// 	//printf("type %d \n", iterator->redirection->type);
 		// 	i = 0;
 		// 	while (iterator->args[i])
 		// 	{
 		// 		printf(" \t the args is %s\n", iterator->args[i]);
-		// 		if (iterator->redirection)
+		// 		if (iterator->redirection->file)
 		// 		{
+		// 			puts("hana");
 		// 			while (iterator->redirection)
 		// 			{
-		// 				puts("hana");
-		// 				printf("%s \n" ,iterator->redirection->file);
+		// 				printf("file %s \n" ,iterator->redirection->file);
 		// 				iterator->redirection = iterator->redirection->next;
 		// 			}
 		// 		}
+		// 		printf("a = %d\n", i);
 		// 		i++;
 		// 	}
 		// 	iterator = iterator->next;
 		// }
 		// iterator = mini.command;
-		// 	while (iterator->redirection)
-		// 	{
-		// 		printf("file = %s \n" ,iterator->redirection->file);
-		// 		iterator->redirection = iterator->redirection->next;
-		// 	}
+		// while (iterator->redirection)
+		// {
+		// 	printf("type = %d \n" ,iterator->redirection->type);
+		// 	printf("file = %s \n" ,iterator->redirection->file); 
+		// 	iterator->redirection = iterator->redirection->next;
+		// }
 		//ft_export(&index, &id, NULL);
-		if (mini.line[0])
+		if (iterator->cmd)
 		 	ft_check_line(&index, &pipe, iterator, &id, env);
 	}
 	return (0);

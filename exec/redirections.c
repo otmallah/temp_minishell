@@ -42,7 +42,7 @@ int	find_space5(char *tab)
 	return 0;
 }
 
-int	find_path_red(t_pipe *index, t_parse *iterator)
+int	find_path_red(t_pipe *index, t_parse *iterator, t_mini *idx)
 {
 	int i;
 	int a;
@@ -50,6 +50,7 @@ int	find_path_red(t_pipe *index, t_parse *iterator)
 	char **tep;
 
 	i = 0;
+	ft_check_cmd(iterator, idx);
 	temp = getenv("PATH");
 	index->tab = ft_split(temp, ':');
 	while (index->tab[i])
@@ -70,25 +71,13 @@ int	find_path_red(t_pipe *index, t_parse *iterator)
 	exit(0);	
 }
 
-void	open_files(char *str)
-{
-	int i;
-	int j;
-	int fd;
-
-	i = 0;
-	while (str[i])
-	{
-		
-	}
-}
-
 void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 {
     int a;
 	int ID_FOR;
     char **tab;
 	int fd = 0;
+	int out = 0;
 
 	if (iterator->redirection)
 	{
@@ -97,12 +86,17 @@ void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 			if (access (iterator->redirection->file, F_OK) == 0)
 			{
 				fd = open(iterator->redirection->file, O_CREAT, O_RDONLY, 0777);
+				if (iterator->redirection->type == T_RDROUT)
+					out = open(iterator->redirection->file, O_CREAT | O_RDWR , 0777);
 				if (fork() == 0)
 				{
+					if (out != 0)
+						dup2(out, STDOUT_FILENO);
 					dup2(fd, STDIN_FILENO);
-					find_path_red(pipx, iterator);
+					find_path_red(pipx, iterator, index);
 				}
 				close(fd);
+				close(out);
 				wait(NULL);
 			}
 			else
@@ -114,11 +108,11 @@ void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 		}
 		else if (iterator->redirection->type == T_RDROUT)
 		{
-			fd = open(iterator->redirection->file, O_CREAT | O_RDWR);
+			fd = open(iterator->redirection->file, O_CREAT | O_RDWR , 0777);
 			if (fork() == 0)
 			{
 				dup2(fd, STDOUT_FILENO);
-				find_path_red(pipx, iterator);
+				find_path_red(pipx, iterator, index);
 			}
 			close(fd);
 			wait(NULL);
@@ -129,7 +123,7 @@ void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator)
 			if (fork() == 0)
 			{
 				dup2(fd, STDOUT_FILENO);
-				find_path_red(pipx, iterator);
+				find_path_red(pipx, iterator, index);
 			}
 			close(fd);
 			wait(NULL);

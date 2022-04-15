@@ -13,7 +13,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-int FD_TE;
+int status_last_exec;
 
 typedef struct s_minishell
 {
@@ -107,13 +107,17 @@ char	*ft_getenv(char *str, t_mini *index);
 
 //redirections
 
+int	find_path_red(t_pipe *index, t_parse *iterator, t_mini *idx);
 void	ft_redirections(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator);
-int	find_path_red(t_pipe *index, t_parse *iterator);
 void    ft_heredoce(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iterator);
 int		find_pipe(char *str);
 
 //signals
 
 void    sigint_handler(int signum);
+
+//pipe
+
+void	ft_check_cmd(t_parse *iterator, t_mini *index);
 
 #endif

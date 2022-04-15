@@ -14,7 +14,7 @@ int	find_space2(char *tab)
 	return 0;
 }
 
-void	find_path(t_parse *iterator, t_pipe *index, char *str)
+void	find_path(t_parse *iterator, t_pipe *index, t_mini *idx)
 {
 	int i;
 	int a;
@@ -22,6 +22,7 @@ void	find_path(t_parse *iterator, t_pipe *index, char *str)
 	char **tep;
 
 	i = 0;
+	ft_check_cmd(iterator, idx);
 	temp = getenv("PATH");
 	index->tab = ft_split(temp, ':');
 	while (index->tab[i])
@@ -70,6 +71,7 @@ void	find_heredoc2(t_pipe *pipx, t_mini *index, t_idx *id, t_parse *iterator)
 
 void	find_redirection(t_mini *index, t_idx *id, t_pipe *pipx, t_parse *iteratore)
 {
+	iteratore = mini.command;
 	while (iteratore)
 	{
 		if (iteratore->redirection)
@@ -113,7 +115,7 @@ int ft_pipe(t_mini *index, t_pipe *pipx, t_idx *idx, t_parse *iterator)
 	int id;
 	int pid[100];
 
-	//find_heredoc2(pipx, index, idx, iterator);
+	find_heredoc2(pipx, index, idx, iterator);
 	find_redirection(index, idx, pipx, iterator);
 	a = nbr_of_cmds2(mini.command);
 	//iterator = mini.command;
@@ -143,7 +145,7 @@ int ft_pipe(t_mini *index, t_pipe *pipx, t_idx *idx, t_parse *iterator)
 				close(fd[0]);
 				dup2(0, 0);
 				dup2(fd[1], STDOUT_FILENO);
-				find_path(iterator, pipx , iterator->cmd);
+				find_path(iterator, pipx ,	index);
 			}
 			else if (i == (a - 1))
 			{
@@ -151,14 +153,14 @@ int ft_pipe(t_mini *index, t_pipe *pipx, t_idx *idx, t_parse *iterator)
 				close(fd[1]);
 				dup2(ff, STDIN_FILENO);
 				dup2(1, 1);
-				find_path(iterator, pipx , iterator->cmd);
+				find_path(iterator, pipx , index);
 			}
 			else
 			{
 				close(fd[0]);
 				dup2(ff, STDIN_FILENO);
 				dup2(fd[1], STDOUT_FILENO);
-				find_path(iterator, pipx , iterator->cmd);
+				find_path(iterator, pipx , index);
 			}
 		}
 		pid[i] = id;
